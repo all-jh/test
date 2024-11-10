@@ -133,37 +133,42 @@
             </svg>
         </button>
 
-        <div class="p-6">
-            <div class="flex items-center justify-between mb-6">
-                <h2 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-purple-500">功能選單</h2>
-                <!-- 添加手機版關閉按鈕 -->
-                <button id="closeNav" class="md:hidden p-2 rounded-full hover:bg-gray-100">
-                    <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
-                    </svg>
-                </button>
+        <div class="h-full bg-white">
+            <div class="p-6">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-purple-500">功能選單</h2>
+                    <!-- 添加手機版關閉按鈕 -->
+                    <button id="closeNav" class="md:hidden p-2 rounded-full hover:bg-gray-100">
+                        <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
+                <ul class="space-y-4">
+                    <!-- 修改現有的導航項目，添加 title 屬性 -->
+                    <li>
+                        <a href="index.html" class="nav-link active" title="發文系統">
+                            <svg class="w-6 h-6 min-w-[1.5rem]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9.5a2.5 2.5 0 00-2.5-2.5H15"/>
+                            </svg>
+                            <span class="nav-text whitespace-nowrap">發文系統</span>
+                        </a>
+                    </li>
+                    <li>
+                        <a href="vote.html" class="nav-link" title="投票系統">
+                            <svg class="w-6 h-6 min-w-[1.5rem]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                            </svg>
+                            <span class="nav-text whitespace-nowrap">投票系統</span>
+                        </a>
+                    </li>
+                </ul>
             </div>
-            <ul class="space-y-4">
-                <!-- 修改現有的導航項目，添加 title 屬性 -->
-                <li>
-                    <a href="index.html" class="nav-link active" title="發文系統">
-                        <svg class="w-6 h-6 min-w-[1.5rem]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9.5a2.5 2.5 0 00-2.5-2.5H15"/>
-                        </svg>
-                        <span class="nav-text whitespace-nowrap">發文系統</span>
-                    </a>
-                </li>
-                <li>
-                    <a href="vote.html" class="nav-link" title="投票系統">
-                        <svg class="w-6 h-6 min-w-[1.5rem]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
-                        </svg>
-                        <span class="nav-text whitespace-nowrap">投票系統</span>
-                    </a>
-                </li>
-            </ul>
         </div>
     </nav>
+
+    <!-- 修改遮罩層 -->
+    <div id="navOverlay" class="fixed inset-0 bg-black opacity-50 z-40 hidden md:hidden"></div>
 
     <!-- 修改移動端選單按鈕樣式 -->
     <button id="mobileMenuBtn" class="md:hidden fixed right-4 top-4 z-50 bg-white p-2 rounded-full shadow-lg hover:bg-gray-50 transition-all duration-300">

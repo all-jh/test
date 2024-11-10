@@ -820,51 +820,68 @@ function addTouchSupport(element) {
     }, { passive: false });
 }
 
-// 添加事件綁定初始化函數
+// 修改事件綁定函數
 function initializeEventListeners() {
-    // 投票按鈕事件綁定
-    document.querySelectorAll('[data-vote-button]').forEach(button => {
-        const voteId = button.getAttribute('data-vote-id');
-        const optionId = button.getAttribute('data-option-id');
-        button.addEventListener('click', () => handleVote(voteId, optionId));
-    });
-
     // 點讚按鈕事件綁定
     document.querySelectorAll('[data-like-button]').forEach(button => {
-        const voteId = button.getAttribute('data-vote-id');
-        button.addEventListener('click', () => handleLike(voteId));
+        button.addEventListener('click', async (e) => {
+            e.preventDefault();
+            const voteId = button.getAttribute('data-vote-id');
+            await handleLike(voteId);
+        });
     });
 
     // 留言點讚按鈕事件綁定
     document.querySelectorAll('[data-comment-like]').forEach(button => {
-        const commentId = button.getAttribute('data-comment-id');
-        button.addEventListener('click', () => handleCommentLike(commentId));
+        button.addEventListener('click', async (e) => {
+            e.preventDefault();
+            const commentId = button.getAttribute('data-comment-id');
+            await handleCommentLike(commentId);
+        });
     });
 
     // 切換留言區塊按鈕事件綁定
     document.querySelectorAll('[data-toggle-comments]').forEach(button => {
-        const voteId = button.getAttribute('data-vote-id');
-        button.addEventListener('click', () => toggleComments(voteId));
-    });
-
-    // Modal 相關按鈕事件綁定
-    const requestVoteButton = document.querySelector('[data-request-vote]');
-    requestVoteButton?.addEventListener('click', showRequestVoteModal);
-
-    const hideModalButton = document.querySelector('[data-hide-modal]');
-    hideModalButton?.addEventListener('click', hideRequestVoteModal);
-
-    const addOptionButton = document.querySelector('[data-add-option]');
-    addOptionButton?.addEventListener('click', addRequestOption);
-
-    // 為所有按鈕添加觸摸支持
-    document.querySelectorAll('button').forEach(button => {
-        addTouchSupport(button);
+        button.addEventListener('click', (e) => {
+            e.preventDefault();
+            const voteId = button.getAttribute('data-vote-id');
+            toggleComments(voteId);
+        });
     });
 }
 
-// 在頁面加載完成後初始化所有事件監聽器
+// 修改導航欄控制函數
+function initializeNavigation() {
+    const sideNav = document.getElementById('sideNav');
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const closeNav = document.getElementById('closeNav');
+    const navOverlay = document.getElementById('navOverlay');
+
+    // 移動版選單控制
+    mobileMenuBtn?.addEventListener('click', () => {
+        sideNav.classList.remove('translate-x-full');
+        navOverlay.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    });
+
+    // 關閉按鈕控制
+    closeNav?.addEventListener('click', () => {
+        sideNav.classList.add('translate-x-full');
+        navOverlay.classList.add('hidden');
+        document.body.style.overflow = '';
+    });
+
+    // 點擊遮罩層關閉選單
+    navOverlay?.addEventListener('click', () => {
+        sideNav.classList.add('translate-x-full');
+        navOverlay.classList.add('hidden');
+        document.body.style.overflow = '';
+    });
+}
+
+// 在頁面加載完成後初始化
 document.addEventListener('DOMContentLoaded', () => {
     initializeNavigation();
     initializeEventListeners();
+    loadVotes(); // 確保投票列表載入後再綁定事件
 });
