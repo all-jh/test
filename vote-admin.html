@@ -11,15 +11,6 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body class="h-full bg-gray-50">
-    <!-- 在 body 開始處添加通知元素 -->
-    <div id="notification" class="fixed top-4 right-4 z-50 transform transition-all duration-300 translate-x-full">
-        <div class="bg-white rounded-lg shadow-lg p-4 flex items-center space-x-3">
-            <div id="notificationIcon" class="flex-shrink-0">
-                <!-- 圖標將由 JS 動態添加 -->
-            </div>
-            <p id="notificationText" class="text-gray-700"></p>
-        </div>
-    </div>
     <div class="min-h-full flex flex-col">
         <main class="flex-grow py-16 px-4 sm:px-6 lg:px-8">
             <div class="mx-auto max-w-4xl">
@@ -65,22 +56,6 @@
                 <!-- 投票管理列表 -->
                 <div id="voteManagementList" class="space-y-6">
                     <!-- 投票管理卡片將動態添加在這裡 -->
-                </div>
-
-                <!-- 在投票管理列表前添加 -->
-                <div class="bg-white rounded-2xl shadow-xl p-8 mb-8">
-                    <h2 class="text-2xl font-bold mb-6">投票申請管理</h2>
-                    <div id="voteRequestsList" class="space-y-4">
-                        <!-- 投票請求將動態添加在這裡 -->
-                    </div>
-                </div>
-
-                <!-- 在投票申請管理後添加 -->
-                <div class="bg-white rounded-2xl shadow-xl p-8 mb-8">
-                    <h2 class="text-2xl font-bold mb-6">留言管理</h2>
-                    <div id="commentsManagementList" class="space-y-4">
-                        <!-- 留言將動態添加在這裡 -->
-                    </div>
                 </div>
             </div>
         </main>

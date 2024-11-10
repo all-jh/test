@@ -334,7 +334,7 @@
             }
         });
 
-        // ���動端選單控制
+        // 移動端選單控制
         const mobileMenuBtn = document.getElementById('mobileMenuBtn');
         const nav = document.querySelector('nav');
 
@@ -413,41 +413,4 @@
                 });
             }
         });
-
-        // 修改導航控制函數
-        function initializeNavigation() {
-            const sideNav = document.getElementById('sideNav');
-            const toggleNav = document.getElementById('toggleNav');
-            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-            const closeNav = document.getElementById('closeNav');
-            const navOverlay = document.getElementById('navOverlay');
-
-            // 桌面版收縮控制
-            toggleNav?.addEventListener('click', () => {
-                sideNav.classList.toggle('collapsed');
-                document.querySelector('main').classList.toggle('nav-collapsed-margin');
-                localStorage.setItem('navCollapsed', sideNav.classList.contains('collapsed'));
-            });
-
-            // 移動版選單控制
-            mobileMenuBtn?.addEventListener('click', () => {
-                sideNav.classList.remove('translate-x-full');
-                navOverlay.classList.remove('hidden');
-            });
-
-            // 關閉按鈕控制
-            closeNav?.addEventListener('click', () => {
-                sideNav.classList.add('translate-x-full');
-                navOverlay.classList.add('hidden');
-            });
-
-            // 點擊遮罩層關閉選單
-            navOverlay?.addEventListener('click', () => {
-                sideNav.classList.add('translate-x-full');
-                navOverlay.classList.add('hidden');
-            });
-        }
-
-        // 確保在 DOM 加載完成後初始化導航
-        document.addEventListener('DOMContentLoaded', initializeNavigation);
     });
