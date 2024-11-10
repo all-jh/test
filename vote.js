@@ -70,7 +70,7 @@ async function createVoteCard(voteId, voteData) {
             <h2 class="text-2xl font-bold flex-grow">${voteData.title}</h2>
             <div class="flex space-x-2">
                 <!-- 留言按鈕 -->
-                <button onclick="toggleComments('${voteId}')" 
+                <button data-toggle-comments data-vote-id="${voteId}" 
                         class="comment-button group p-2 rounded-xl border-2 hover:border-indigo-200 hover:bg-indigo-50 transition-all duration-300 flex items-center space-x-1">
                     <svg class="w-5 h-5 text-gray-500 group-hover:text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
@@ -79,7 +79,7 @@ async function createVoteCard(voteId, voteData) {
                     <span class="text-sm text-gray-500 group-hover:text-indigo-500">${commentsCount}</span>
                 </button>
                 <!-- 點讚按鈕 -->
-                <button onclick="handleLike('${voteId}')" 
+                <button data-like-button data-vote-id="${voteId}" 
                         class="like-button p-2 rounded-xl border-2 ${hasLiked ? 'liked' : ''} hover:scale-110 transition-transform">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
@@ -133,7 +133,7 @@ async function createVoteCard(voteId, voteData) {
 // 添加切換留言區塊的函數
 async function toggleComments(voteId) {
     const commentsSection = document.getElementById(`comments-section-${voteId}`);
-    const commentButton = document.querySelector(`button[onclick="toggleComments('${voteId}')"]`);
+    const commentButton = document.querySelector(`button[data-toggle-comments][data-vote-id="${voteId}"]`);
     const isHidden = commentsSection.classList.contains('hidden');
     
     if (isHidden) {
@@ -208,7 +208,7 @@ function createOptionsHTML(voteId, options, totalVotes) {
         const percentage = totalVotes > 0 ? (option.votes / totalVotes * 100).toFixed(1) : 0;
         return `
             <div class="option-container mb-4 relative">
-                <button onclick="handleVote('${voteId}', '${optionId}')" 
+                <button data-vote-button data-vote-id="${voteId}" data-option-id="${optionId}" 
                         class="vote-button w-full text-left px-4 py-3 rounded-xl border-2 border-gray-200 hover:border-indigo-500 hover:bg-indigo-50 transition-all duration-300 flex justify-between items-center group">
                     <span class="text-lg font-medium text-gray-700 group-hover:text-indigo-600">${option.text}</span>
                     <div class="flex items-center space-x-2 absolute right-4">
@@ -235,7 +235,7 @@ function createOptionsHTML(voteId, options, totalVotes) {
 
 // 修改投票處理函數
 async function handleVote(voteId, optionId) {
-    const button = document.querySelector(`button[onclick="handleVote('${voteId}', '${optionId}')"]`);
+    const button = document.querySelector(`button[data-vote-button][data-vote-id="${voteId}"][data-option-id="${optionId}"]`);
     if (!button) return;
 
     // 添加載入狀態
@@ -287,7 +287,7 @@ async function handleVote(voteId, optionId) {
         // 更新當前投票卡片的數據
         updateVoteCard(voteId, updatedVoteData);
 
-        // 顯示���圖標
+        // 顯示
         button.classList.remove('loading');
         const successIcon = button.querySelector('.vote-success');
         successIcon.classList.remove('hidden');
@@ -320,13 +320,13 @@ function updateVoteCard(voteId, voteData) {
         const percentage = voteData.totalVotes > 0 ? (option.votes / voteData.totalVotes * 100).toFixed(1) : 0;
         
         // 更新投票數和百分比文字
-        const voteCountSpan = optionsContainer.querySelector(`button[onclick="handleVote('${voteId}', '${optionId}')"] .text-sm`);
+        const voteCountSpan = optionsContainer.querySelector(`button[data-vote-button][data-vote-id="${voteId}"][data-option-id="${optionId}"] .text-sm`);
         if (voteCountSpan) {
             voteCountSpan.textContent = `${option.votes} 票 (${percentage}%)`;
         }
 
         // 更新進度條
-        const progressBar = optionsContainer.querySelector(`button[onclick="handleVote('${voteId}', '${optionId}')"]`)
+        const progressBar = optionsContainer.querySelector(`button[data-vote-button][data-vote-id="${voteId}"][data-option-id="${optionId}"]`)
             .nextElementSibling.querySelector('.bg-gradient-to-r');
         if (progressBar) {
             progressBar.style.width = `${percentage}%`;
@@ -344,7 +344,7 @@ async function handleLike(voteId) {
 
         const voteRef = db.collection('votes').doc(voteId);
         const likeRef = db.collection('vote_likes').doc(`${voteId}_${userIP}`);
-        const likeButton = document.querySelector(`button[onclick="handleLike('${voteId}')"]`);
+        const likeButton = document.querySelector(`button[data-like-button][data-vote-id="${voteId}"]`);
         const likeIcon = likeButton.querySelector('svg');
         
         // 添加點擊動畫
@@ -460,11 +460,17 @@ function addRequestOption() {
     container.appendChild(optionDiv);
 }
 
-// 添加通知函數
+// 修改通知函數
 function showNotification(message, type = 'success') {
     const notification = document.getElementById('notification');
     const notificationText = document.getElementById('notificationText');
     const notificationIcon = document.getElementById('notificationIcon');
+    
+    // 檢查元素是否存在
+    if (!notification || !notificationText || !notificationIcon) {
+        console.error('找不到通知元素');
+        return;
+    }
     
     // 設置圖標
     const iconColor = type === 'success' ? 'text-green-500' : 'text-red-500';
@@ -476,18 +482,22 @@ function showNotification(message, type = 'success') {
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
         </svg>`;
     
-    notificationIcon.innerHTML = iconSvg;
-    notificationText.textContent = message;
-    
-    // 顯示通知
-    notification.classList.remove('translate-x-full');
-    notification.classList.add('translate-x-0');
-    
-    // 3秒後隱藏
-    setTimeout(() => {
-        notification.classList.remove('translate-x-0');
-        notification.classList.add('translate-x-full');
-    }, 3000);
+    try {
+        notificationIcon.innerHTML = iconSvg;
+        notificationText.textContent = message;
+        
+        // 顯示通知
+        notification.classList.remove('translate-x-full');
+        notification.classList.add('translate-x-0');
+        
+        // 3秒後隱藏
+        setTimeout(() => {
+            notification.classList.remove('translate-x-0');
+            notification.classList.add('translate-x-full');
+        }, 3000);
+    } catch (error) {
+        console.error('顯示通知時發生錯誤:', error);
+    }
 }
 
 // 修改處理投票請求函數
@@ -563,7 +573,7 @@ async function handleComment(event, voteId) {
         form.reset();
 
         // 更新留言按鈕上的數量
-        const commentButton = document.querySelector(`button[onclick="toggleComments('${voteId}')"]`);
+        const commentButton = document.querySelector(`button[data-toggle-comments][data-vote-id="${voteId}"]`);
         if (commentButton) {
             const count = await getCommentsCount(voteId);
             const countSpan = commentButton.querySelector('span');
@@ -604,7 +614,7 @@ function createCommentElement(commentData, commentId) {
                 <div class="flex justify-between items-center mb-2">
                     <h4 class="font-bold text-gray-900 text-lg">${commentData.nickname}</h4>
                     <div class="flex items-center space-x-2">
-                        <button onclick="handleCommentLike('${commentId}')" 
+                        <button data-comment-like data-comment-id="${commentId}" 
                                 class="comment-like-btn group flex items-center space-x-1 px-3 py-1 rounded-full bg-gray-50 hover:bg-pink-50 transition-colors duration-300 ${commentData.userLiked ? 'bg-pink-50' : ''}">
                             <svg class="w-5 h-5 text-gray-400 group-hover:text-pink-500 transition-colors duration-300 ${commentData.userLiked ? 'text-pink-500 fill-current' : ''}" 
                                  fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -636,7 +646,7 @@ async function handleCommentLike(commentId) {
 
         const commentRef = db.collection('comments').doc(commentId);
         const likeRef = db.collection('comment_likes').doc(`${commentId}_${userIP}`);
-        const likeButton = document.querySelector(`button[onclick="handleCommentLike('${commentId}')"]`);
+        const likeButton = document.querySelector(`button[data-comment-like][data-comment-id="${commentId}"]`);
         
         // 添加點擊動畫
         likeButton.classList.add('scale-110');
@@ -759,6 +769,8 @@ function initializeNavigation() {
     const toggleNav = document.getElementById('toggleNav');
     const toggleIcon = document.getElementById('toggleIcon');
     const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+    const closeMobileNav = document.getElementById('closeMobileNav');
+    const navOverlay = document.getElementById('navOverlay');
 
     // 桌面版導航欄收縮控制
     toggleNav?.addEventListener('click', () => {
@@ -768,20 +780,91 @@ function initializeNavigation() {
             : 'rotate(0deg)';
     });
 
-    // 移動版選單控制
+    // 打開手機版選單
     mobileMenuBtn?.addEventListener('click', () => {
-        sideNav.classList.toggle('show');
+        sideNav.classList.remove('translate-x-full');
+        navOverlay.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
     });
 
-    // 點擊其他區域關閉移動版選單
-    document.addEventListener('click', (e) => {
-        if (window.innerWidth < 768 && 
-            !sideNav.contains(e.target) && 
-            !mobileMenuBtn.contains(e.target)) {
-            sideNav.classList.remove('show');
-        }
+    // 關閉手機版選單
+    const closeNav = () => {
+        sideNav.classList.add('translate-x-full');
+        navOverlay.classList.add('hidden');
+        document.body.style.overflow = '';
+    };
+
+    // 綁定關閉事件
+    closeMobileNav?.addEventListener('click', closeNav);
+    navOverlay?.addEventListener('click', closeNav);
+
+    // 處理導航鏈接點擊
+    const navLinks = sideNav.querySelectorAll('a');
+    navLinks.forEach(link => {
+        link.addEventListener('click', () => {
+            if (window.innerWidth < 768) {
+                closeNav();
+            }
+        });
     });
 }
 
 // 在頁面加載完成後初始化導航
 document.addEventListener('DOMContentLoaded', initializeNavigation);
+
+// 添加觸摸事件支持
+function addTouchSupport(element) {
+    element.addEventListener('touchstart', function(e) {
+        e.preventDefault();
+        this.click();
+    }, { passive: false });
+}
+
+// 添加事件綁定初始化函數
+function initializeEventListeners() {
+    // 投票按鈕事件綁定
+    document.querySelectorAll('[data-vote-button]').forEach(button => {
+        const voteId = button.getAttribute('data-vote-id');
+        const optionId = button.getAttribute('data-option-id');
+        button.addEventListener('click', () => handleVote(voteId, optionId));
+    });
+
+    // 點讚按鈕事件綁定
+    document.querySelectorAll('[data-like-button]').forEach(button => {
+        const voteId = button.getAttribute('data-vote-id');
+        button.addEventListener('click', () => handleLike(voteId));
+    });
+
+    // 留言點讚按鈕事件綁定
+    document.querySelectorAll('[data-comment-like]').forEach(button => {
+        const commentId = button.getAttribute('data-comment-id');
+        button.addEventListener('click', () => handleCommentLike(commentId));
+    });
+
+    // 切換留言區塊按鈕事件綁定
+    document.querySelectorAll('[data-toggle-comments]').forEach(button => {
+        const voteId = button.getAttribute('data-vote-id');
+        button.addEventListener('click', () => toggleComments(voteId));
+    });
+
+    // Modal 相關按鈕事件綁定
+    const requestVoteButton = document.querySelector('[data-request-vote]');
+    requestVoteButton?.addEventListener('click', showRequestVoteModal);
+
+    const hideModalButton = document.querySelector('[data-hide-modal]');
+    hideModalButton?.addEventListener('click', hideRequestVoteModal);
+
+    const addOptionButton = document.querySelector('[data-add-option]');
+    addOptionButton?.addEventListener('click', addRequestOption);
+
+    // 為所有按鈕添加觸摸支持
+    document.querySelectorAll('button').forEach(button => {
+        addTouchSupport(button);
+    });
+}
+
+// 在頁面加載完成後初始化所有事件監聽器
+document.addEventListener('DOMContentLoaded', () => {
+    initializeNavigation();
+    initializeEventListeners();
+});
