@@ -18,33 +18,21 @@
         box-shadow: -10px 0 20px rgba(0, 0, 0, 0.1);
     }
 
-    #sideNav.show {
-        transform: translateX(0);
+    @media (max-width: 768px) {
+        #sideNav {
+            width: 80%;
+            max-width: 320px;
+        }
     }
 
-    @media (max-width: 768px) {
-        body.nav-open {
-            overflow: hidden;
-        }
-        
-        #sideNav::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.5);
-            opacity: 0;
-            transition: opacity 0.3s;
-            pointer-events: none;
-            z-index: -1;
-        }
-        
-        #sideNav.show::before {
-            opacity: 1;
-            pointer-events: auto;
-        }
+    #navOverlay {
+        background-color: rgba(0, 0, 0, 0.5);
+        transition: opacity 0.3s ease;
+    }
+
+    /* 移除 backdrop-filter */
+    .modal-backdrop {
+        background-color: rgba(0, 0, 0, 0.5);
     }
 </style>
 </head>

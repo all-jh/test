@@ -532,7 +532,7 @@ async function handleVoteRequest(event) {
 
     try {
         await db.collection('vote_requests').add(requestData);
-        showNotification('申請已送出！我們會盡快審核您的申請。');
+        showNotification('申請已送出！我��會盡快審核您的申��。');
         hideRequestVoteModal();
         event.target.reset();
         document.getElementById('requestOptionsContainer').innerHTML = '';
@@ -883,5 +883,7 @@ function initializeNavigation() {
 document.addEventListener('DOMContentLoaded', () => {
     initializeNavigation();
     initializeEventListeners();
-    loadVotes(); // 確保投票列表載入後再綁定事件
+    loadVotes().then(() => {
+        initializeEventListeners();
+    });
 });

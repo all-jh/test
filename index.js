@@ -334,7 +334,7 @@
             }
         });
 
-        // 移動端選單控制
+        // ���動端選單控制
         const mobileMenuBtn = document.getElementById('mobileMenuBtn');
         const nav = document.querySelector('nav');
 
@@ -414,13 +414,14 @@
             }
         });
 
-        // 修改導航控制相關代碼
+        // 修改導航控制函數
         function initializeNavigation() {
             const sideNav = document.getElementById('sideNav');
             const toggleNav = document.getElementById('toggleNav');
             const mobileMenuBtn = document.getElementById('mobileMenuBtn');
             const closeNav = document.getElementById('closeNav');
-            
+            const navOverlay = document.getElementById('navOverlay');
+
             // 桌面版收縮控制
             toggleNav?.addEventListener('click', () => {
                 sideNav.classList.toggle('collapsed');
@@ -430,30 +431,20 @@
 
             // 移動版選單控制
             mobileMenuBtn?.addEventListener('click', () => {
-                sideNav.classList.add('show');
-                document.body.classList.add('nav-open');
+                sideNav.classList.remove('translate-x-full');
+                navOverlay.classList.remove('hidden');
             });
 
             // 關閉按鈕控制
             closeNav?.addEventListener('click', () => {
-                sideNav.classList.remove('show');
-                document.body.classList.remove('nav-open');
+                sideNav.classList.add('translate-x-full');
+                navOverlay.classList.add('hidden');
             });
 
             // 點擊遮罩層關閉選單
-            sideNav?.addEventListener('click', (e) => {
-                if (window.innerWidth <= 768 && e.target === sideNav) {
-                    sideNav.classList.remove('show');
-                    document.body.classList.remove('nav-open');
-                }
-            });
-
-            // 更新當前頁面的活動狀態
-            const currentPath = window.location.pathname;
-            document.querySelectorAll('.nav-link').forEach(link => {
-                if (link.getAttribute('href') === currentPath.split('/').pop()) {
-                    link.classList.add('active');
-                }
+            navOverlay?.addEventListener('click', () => {
+                sideNav.classList.add('translate-x-full');
+                navOverlay.classList.add('hidden');
             });
         }
 
