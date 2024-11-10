@@ -22,12 +22,18 @@
         #sideNav {
             width: 80%;
             max-width: 320px;
+            transform: translateX(100%);
+        }
+
+        #sideNav.show {
+            transform: translateX(0);
         }
     }
 
     #navOverlay {
         background-color: rgba(0, 0, 0, 0.5);
         transition: opacity 0.3s ease;
+        backdrop-filter: none; /* 移除霧化效果 */
     }
 
     /* 移除 backdrop-filter */

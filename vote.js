@@ -54,79 +54,36 @@ async function loadVotes() {
 }
 
 // 修改創建投票卡片函數
-async function createVoteCard(voteId, voteData) {
+function createVoteCard(voteId, voteData) {
     const card = document.createElement('div');
-    card.className = 'bg-white rounded-2xl shadow-xl p-8 mb-8';
+    card.setAttribute('data-vote-id', voteId);
+    card.className = 'vote-card';
     
-    // 檢查用戶是否已點讚
-    const hasLiked = await checkIfUserLiked(voteId);
-    const formattedEndTime = new Date(voteData.endTime.seconds * 1000).toLocaleString('zh-TW');
+    // 點讚按鈕
+    const likeButton = document.createElement('button');
+    likeButton.className = 'like-button flex items-center space-x-2 px-4 py-2 rounded-xl border-2 transition-all duration-300';
+    likeButton.innerHTML = `
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
+        </svg>
+        <span class="likes-count">${voteData.likes || 0}</span>
+    `;
     
-    // 獲取留言數量
-    const commentsCount = await getCommentsCount(voteId);
-    
-    card.innerHTML = `
-        <div class="flex justify-between items-start mb-4">
-            <h2 class="text-2xl font-bold flex-grow">${voteData.title}</h2>
-            <div class="flex space-x-2">
-                <!-- 留言按鈕 -->
-                <button data-toggle-comments data-vote-id="${voteId}" 
-                        class="comment-button group p-2 rounded-xl border-2 hover:border-indigo-200 hover:bg-indigo-50 transition-all duration-300 flex items-center space-x-1">
-                    <svg class="w-5 h-5 text-gray-500 group-hover:text-indigo-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                              d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
-                    </svg>
-                    <span class="text-sm text-gray-500 group-hover:text-indigo-500">${commentsCount}</span>
-                </button>
-                <!-- 點讚按鈕 -->
-                <button data-like-button data-vote-id="${voteId}" 
-                        class="like-button p-2 rounded-xl border-2 ${hasLiked ? 'liked' : ''} hover:scale-110 transition-transform">
-                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" 
-                              d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
-                    </svg>
-                    <span class="likes-count text-sm ml-1">${voteData.likes || 0}</span>
-                </button>
-            </div>
-        </div>
-        <p class="text-gray-600 mb-4">${voteData.description}</p>
-        <p class="text-sm text-gray-500 mb-6">結束時間：${formattedEndTime}</p>
-        
-        <div class="space-y-4" id="options-${voteId}">
-            ${createOptionsHTML(voteId, voteData.options, voteData.totalVotes)}
-        </div>
-
-        <!-- 留言區塊（預設隱藏） -->
-        <div id="comments-section-${voteId}" class="hidden mt-6 pt-6 border-t border-gray-200">
-            <h3 class="text-lg font-semibold mb-4">留言區</h3>
-            <div class="space-y-4 mb-6" id="comments-${voteId}">
-                <!-- 留言將動態載入 -->
-            </div>
-            
-            <!-- 留言表單 -->
-            <form onsubmit="handleComment(event, '${voteId}')" class="space-y-4">
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">您的暱稱</label>
-                    <input type="text" name="nickname" required
-                           class="w-full px-4 py-2 rounded-xl border-2 border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
-                           placeholder="請輸入暱稱">
-                </div>
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 mb-2">留言內容</label>
-                    <textarea name="content" required rows="3"
-                              class="w-full px-4 py-2 rounded-xl border-2 border-gray-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200"
-                              placeholder="分享您的想法..."></textarea>
-                </div>
-                <div class="flex justify-end">
-                    <button type="submit" 
-                            class="px-6 py-2 rounded-xl text-white bg-indigo-500 hover:bg-indigo-600 transform transition-all hover:scale-105">
-                        送出留言
-                    </button>
-                </div>
-            </form>
-        </div>
+    // 留言按鈕
+    const commentButton = document.createElement('button');
+    commentButton.setAttribute('data-toggle-comments', '');
+    commentButton.className = 'flex items-center space-x-2 px-4 py-2 rounded-xl hover:bg-gray-100 transition-all duration-300';
+    commentButton.innerHTML = `
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/>
+        </svg>
+        <span>留言</span>
     `;
 
+    // 添加到卡片
+    card.appendChild(likeButton);
+    card.appendChild(commentButton);
+    
     return card;
 }
 
@@ -532,7 +489,7 @@ async function handleVoteRequest(event) {
 
     try {
         await db.collection('vote_requests').add(requestData);
-        showNotification('申請已送出！我��會盡快審核您的申��。');
+        showNotification('申請已送出！我會盡快審核您的申請。');
         hideRequestVoteModal();
         event.target.reset();
         document.getElementById('requestOptionsContainer').innerHTML = '';
@@ -766,46 +723,29 @@ document.addEventListener('click', (e) => {
 // 添加導航欄控制函數
 function initializeNavigation() {
     const sideNav = document.getElementById('sideNav');
-    const toggleNav = document.getElementById('toggleNav');
-    const toggleIcon = document.getElementById('toggleIcon');
     const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-    const closeMobileNav = document.getElementById('closeMobileNav');
+    const closeNav = document.getElementById('closeNav');
     const navOverlay = document.getElementById('navOverlay');
 
-    // 桌面版導航欄收縮控制
-    toggleNav?.addEventListener('click', () => {
-        sideNav.classList.toggle('collapsed');
-        toggleIcon.style.transform = sideNav.classList.contains('collapsed') 
-            ? 'rotate(180deg)' 
-            : 'rotate(0deg)';
-    });
-
-    // 打開手機版選單
+    // 移動版選單控制
     mobileMenuBtn?.addEventListener('click', () => {
-        sideNav.classList.remove('translate-x-full');
+        sideNav.classList.add('show');
         navOverlay.classList.remove('hidden');
         document.body.style.overflow = 'hidden';
     });
 
-    // 關閉手機版選單
-    const closeNav = () => {
-        sideNav.classList.add('translate-x-full');
+    // 關閉按鈕控制
+    closeNav?.addEventListener('click', () => {
+        sideNav.classList.remove('show');
         navOverlay.classList.add('hidden');
         document.body.style.overflow = '';
-    };
+    });
 
-    // 綁定關閉事件
-    closeMobileNav?.addEventListener('click', closeNav);
-    navOverlay?.addEventListener('click', closeNav);
-
-    // 處理導航鏈接點擊
-    const navLinks = sideNav.querySelectorAll('a');
-    navLinks.forEach(link => {
-        link.addEventListener('click', () => {
-            if (window.innerWidth < 768) {
-                closeNav();
-            }
-        });
+    // 點擊遮罩層關閉選單
+    navOverlay?.addEventListener('click', () => {
+        sideNav.classList.remove('show');
+        navOverlay.classList.add('hidden');
+        document.body.style.overflow = '';
     });
 }
 
@@ -823,66 +763,29 @@ function addTouchSupport(element) {
 // 修改事件綁定函數
 function initializeEventListeners() {
     // 點讚按鈕事件綁定
-    document.querySelectorAll('[data-like-button]').forEach(button => {
+    document.querySelectorAll('.like-button').forEach(button => {
         button.addEventListener('click', async (e) => {
             e.preventDefault();
-            const voteId = button.getAttribute('data-vote-id');
+            e.stopPropagation();
+            const voteId = button.closest('[data-vote-id]').getAttribute('data-vote-id');
             await handleLike(voteId);
         });
     });
 
-    // 留言點讚按鈕事件綁定
-    document.querySelectorAll('[data-comment-like]').forEach(button => {
-        button.addEventListener('click', async (e) => {
-            e.preventDefault();
-            const commentId = button.getAttribute('data-comment-id');
-            await handleCommentLike(commentId);
-        });
-    });
-
-    // 切換留言區塊按鈕事件綁定
+    // 留言按鈕事件綁定
     document.querySelectorAll('[data-toggle-comments]').forEach(button => {
         button.addEventListener('click', (e) => {
             e.preventDefault();
-            const voteId = button.getAttribute('data-vote-id');
+            e.stopPropagation();
+            const voteId = button.closest('[data-vote-id]').getAttribute('data-vote-id');
             toggleComments(voteId);
         });
-    });
-}
-
-// 修改導航欄控制函數
-function initializeNavigation() {
-    const sideNav = document.getElementById('sideNav');
-    const mobileMenuBtn = document.getElementById('mobileMenuBtn');
-    const closeNav = document.getElementById('closeNav');
-    const navOverlay = document.getElementById('navOverlay');
-
-    // 移動版選單控制
-    mobileMenuBtn?.addEventListener('click', () => {
-        sideNav.classList.remove('translate-x-full');
-        navOverlay.classList.remove('hidden');
-        document.body.style.overflow = 'hidden';
-    });
-
-    // 關閉按鈕控制
-    closeNav?.addEventListener('click', () => {
-        sideNav.classList.add('translate-x-full');
-        navOverlay.classList.add('hidden');
-        document.body.style.overflow = '';
-    });
-
-    // 點擊遮罩層關閉選單
-    navOverlay?.addEventListener('click', () => {
-        sideNav.classList.add('translate-x-full');
-        navOverlay.classList.add('hidden');
-        document.body.style.overflow = '';
     });
 }
 
 // 在頁面加載完成後初始化
 document.addEventListener('DOMContentLoaded', () => {
     initializeNavigation();
-    initializeEventListeners();
     loadVotes().then(() => {
         initializeEventListeners();
     });
