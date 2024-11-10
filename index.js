@@ -413,4 +413,50 @@
                 });
             }
         });
+
+        // 修改導航控制相關代碼
+        function initializeNavigation() {
+            const sideNav = document.getElementById('sideNav');
+            const toggleNav = document.getElementById('toggleNav');
+            const mobileMenuBtn = document.getElementById('mobileMenuBtn');
+            const closeNav = document.getElementById('closeNav');
+            
+            // 桌面版收縮控制
+            toggleNav?.addEventListener('click', () => {
+                sideNav.classList.toggle('collapsed');
+                document.querySelector('main').classList.toggle('nav-collapsed-margin');
+                localStorage.setItem('navCollapsed', sideNav.classList.contains('collapsed'));
+            });
+
+            // 移動版選單控制
+            mobileMenuBtn?.addEventListener('click', () => {
+                sideNav.classList.add('show');
+                document.body.classList.add('nav-open');
+            });
+
+            // 關閉按鈕控制
+            closeNav?.addEventListener('click', () => {
+                sideNav.classList.remove('show');
+                document.body.classList.remove('nav-open');
+            });
+
+            // 點擊遮罩層關閉選單
+            sideNav?.addEventListener('click', (e) => {
+                if (window.innerWidth <= 768 && e.target === sideNav) {
+                    sideNav.classList.remove('show');
+                    document.body.classList.remove('nav-open');
+                }
+            });
+
+            // 更新當前頁面的活動狀態
+            const currentPath = window.location.pathname;
+            document.querySelectorAll('.nav-link').forEach(link => {
+                if (link.getAttribute('href') === currentPath.split('/').pop()) {
+                    link.classList.add('active');
+                }
+            });
+        }
+
+        // 確保在 DOM 加載完成後初始化導航
+        document.addEventListener('DOMContentLoaded', initializeNavigation);
     });

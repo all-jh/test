@@ -10,6 +10,43 @@
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
 <link rel="stylesheet" href="style.css">
+<style>
+    /* 現有的樣式保持不變 */
+    
+    /* 添加導航欄相關樣式 */
+    #sideNav {
+        box-shadow: -10px 0 20px rgba(0, 0, 0, 0.1);
+    }
+
+    #sideNav.show {
+        transform: translateX(0);
+    }
+
+    @media (max-width: 768px) {
+        body.nav-open {
+            overflow: hidden;
+        }
+        
+        #sideNav::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none;
+            z-index: -1;
+        }
+        
+        #sideNav.show::before {
+            opacity: 1;
+            pointer-events: auto;
+        }
+    }
+</style>
 </head>
 <body class="h-full">
 <div class="min-h-full flex flex-col">
@@ -88,16 +125,24 @@
 </div>
 
     <!-- 右側導航欄 -->
-    <nav class="hidden md:block w-64 bg-white shadow-xl h-screen fixed right-0 top-0 overflow-y-auto transition-all duration-300" id="sideNav">
-        <!-- 添加收縮按鈕 -->
-        <button id="toggleNav" class="absolute left-0 top-6 -translate-x-1/2 bg-white p-2 rounded-full shadow-lg z-10 hover:bg-gray-50 transition-all duration-300">
+    <nav class="transform transition-transform duration-300 fixed top-0 right-0 h-full bg-white shadow-xl z-50 w-64 md:translate-x-0 translate-x-full" id="sideNav">
+        <!-- 收縮按鈕只在桌面版顯示 -->
+        <button id="toggleNav" class="hidden md:block absolute left-0 top-6 -translate-x-1/2 bg-white p-2 rounded-full shadow-lg z-10 hover:bg-gray-50 transition-all duration-300">
             <svg class="w-6 h-6 transform transition-transform duration-300" id="toggleIcon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
             </svg>
         </button>
 
         <div class="p-6">
-            <h2 class="text-2xl font-bold text-gray-800 mb-6 whitespace-nowrap">功能選單</h2>
+            <div class="flex items-center justify-between mb-6">
+                <h2 class="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-500 to-purple-500">功能選單</h2>
+                <!-- 添加手機版關閉按鈕 -->
+                <button id="closeNav" class="md:hidden p-2 rounded-full hover:bg-gray-100">
+                    <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                    </svg>
+                </button>
+            </div>
             <ul class="space-y-4">
                 <!-- 修改現有的導航項目，添加 title 屬性 -->
                 <li>
@@ -120,9 +165,9 @@
         </div>
     </nav>
 
-    <!-- 移動端選單按鈕 -->
-    <button id="mobileMenuBtn" class="md:hidden fixed right-4 top-4 z-50 bg-white p-2 rounded-full shadow-lg">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <!-- 修改移動端選單按鈕樣式 -->
+    <button id="mobileMenuBtn" class="md:hidden fixed right-4 top-4 z-50 bg-white p-2 rounded-full shadow-lg hover:bg-gray-50 transition-all duration-300">
+        <svg class="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"/>
         </svg>
     </button>
