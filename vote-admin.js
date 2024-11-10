@@ -64,13 +64,13 @@ async function handleNewVote(event) {
 
     try {
         await db.collection('votes').add(voteData);
-        alert('投票創建成功！');
+        showNotification('投票創建成功！', 'success');
         loadVoteManagement();
         event.target.reset();
         document.getElementById('optionsContainer').innerHTML = '';
     } catch (error) {
         console.error("Error creating vote:", error);
-        alert('創建失敗，請稍後再試');
+        showNotification('創建失敗，請稍後再試', 'error');
     }
 }
 
@@ -137,17 +137,130 @@ async function deleteVote(voteId) {
     
     try {
         await db.collection('votes').doc(voteId).delete();
-        alert('刪除成功！');
+        showNotification('刪除成功！', 'success');
         loadVoteManagement();
     } catch (error) {
         console.error("Error deleting vote:", error);
-        alert('刪除失敗，請稍後再試');
+        showNotification('刪除失敗，請稍後再試', 'error');
     }
+}
+
+// 添加載入投票申請列表的函數
+async function loadVoteRequests() {
+    try {
+        const querySnapshot = await db.collection('vote_requests')
+            .where('status', '==', 'pending')
+            .orderBy('createdAt', 'desc')
+            .get();
+
+        const container = document.getElementById('voteRequestsList');
+        container.innerHTML = '';
+
+        querySnapshot.forEach((doc) => {
+            const requestData = doc.data();
+            const card = createRequestCard(doc.id, requestData);
+            container.appendChild(card);
+        });
+    } catch (error) {
+        console.error("Error loading vote requests:", error);
+    }
+}
+
+function createRequestCard(requestId, requestData) {
+    const card = document.createElement('div');
+    card.className = 'bg-white rounded-2xl shadow-xl p-6 mb-4';
+    
+    card.innerHTML = `
+        <div class="flex justify-between items-start mb-4">
+            <h3 class="text-xl font-bold text-gray-800">${requestData.title}</h3>
+            <span class="px-4 py-1 rounded-full text-sm font-semibold bg-yellow-100 text-yellow-800">
+                待審核
+            </span>
+        </div>
+        <p class="text-gray-600 mb-4">${requestData.description}</p>
+        <div class="space-y-2 mb-4">
+            ${Object.entries(requestData.options).map(([key, option]) => `
+                <div class="text-gray-700">${option.text}</div>
+            `).join('')}
+        </div>
+        <div class="flex justify-end space-x-4">
+            <button onclick="approveVoteRequest('${requestId}')"
+                class="px-4 py-2 rounded-xl text-white font-semibold bg-green-500 hover:bg-green-600 transition-all">
+                批准
+            </button>
+            <button onclick="rejectVoteRequest('${requestId}')"
+                class="px-4 py-2 rounded-xl text-white font-semibold bg-red-500 hover:bg-red-600 transition-all">
+                拒絕
+            </button>
+        </div>
+    `;
+    
+    return card;
+}
+
+async function approveVoteRequest(requestId) {
+    try {
+        const requestDoc = await db.collection('vote_requests').doc(requestId).get();
+        const requestData = requestDoc.data();
+
+        // 創建新投票，設置24小時後結束
+        const endTime = new Date();
+        endTime.setHours(endTime.getHours() + 24);
+
+        await db.collection('votes').add({
+            title: requestData.title,
+            description: requestData.description,
+            options: requestData.options,
+            endTime: firebase.firestore.Timestamp.fromDate(endTime),
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            totalVotes: 0
+        });
+
+        // 更新申請狀態
+        await db.collection('vote_requests').doc(requestId).update({
+            status: 'approved'
+        });
+
+        showNotification('投票已批准並創建！', 'success');
+        loadVoteRequests();
+        loadVoteManagement();
+    } catch (error) {
+        console.error("Error approving vote request:", error);
+        showNotification('操作失敗，請稍後再試', 'error');
+    }
+}
+
+async function rejectVoteRequest(requestId) {
+    try {
+        await db.collection('vote_requests').doc(requestId).update({
+            status: 'rejected'
+        });
+        showNotification('已拒絕該投票申請', 'success');
+        loadVoteRequests();
+    } catch (error) {
+        console.error("Error rejecting vote request:", error);
+        showNotification('操作失敗，請稍後再試', 'error');
+    }
+}
+
+// 顯示通知
+function showNotification(message, type) {
+    const notification = document.createElement('div');
+    notification.className = `fixed bottom-4 right-4 px-4 py-2 rounded-xl shadow-lg text-white ${type === 'success' ? 'bg-green-500' : 'bg-red-500'}`;
+    notification.innerText = message;
+
+    document.body.appendChild(notification);
+
+    setTimeout(() => {
+        notification.remove();
+    }, 3000);
 }
 
 // 將函數添加到全局作用域
 window.addOptionInput = addOptionInput;
 window.deleteVote = deleteVote;
+window.approveVoteRequest = approveVoteRequest;
+window.rejectVoteRequest = rejectVoteRequest;
 
 // 初始化頁面
 document.addEventListener('DOMContentLoaded', () => {
@@ -158,4 +271,5 @@ document.addEventListener('DOMContentLoaded', () => {
     addOptionBtn.addEventListener('click', addOptionInput);
     
     loadVoteManagement();
+    loadVoteRequests();
 }); 

@@ -357,4 +357,96 @@ document.addEventListener('DOMContentLoaded', () => {
 document.addEventListener('DOMContentLoaded', () => {
     loadVotes();
     checkLikedStatus();
-}); 
+});
+
+// 添加申請投票相關函數
+function openVoteRequestModal() {
+    const modal = document.getElementById('voteRequestModal');
+    modal.classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+    
+    // 初始化兩個選項
+    const container = document.getElementById('requestOptionsContainer');
+    container.innerHTML = '';
+    addRequestOption();
+    addRequestOption();
+}
+
+function closeVoteRequestModal() {
+    const modal = document.getElementById('voteRequestModal');
+    modal.classList.add('hidden');
+    document.body.style.overflow = '';
+}
+
+function addRequestOption() {
+    const container = document.getElementById('requestOptionsContainer');
+    const optionCount = container.getElementsByClassName('option-input').length;
+    
+    if (optionCount >= 4) {
+        alert('最多只能添加4個選項');
+        return;
+    }
+
+    const optionDiv = document.createElement('div');
+    optionDiv.className = 'option-input flex items-center space-x-2 mt-2';
+    optionDiv.innerHTML = `
+        <input type="text" placeholder="選項 ${optionCount + 1}" required
+            class="flex-grow rounded-xl border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+        ${optionCount > 1 ? `
+            <button type="button" onclick="this.parentElement.remove()" 
+                class="text-red-500 hover:text-red-700">
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+                </svg>
+            </button>
+        ` : ''}
+    `;
+    
+    container.appendChild(optionDiv);
+}
+
+async function submitVoteRequest() {
+    const title = document.getElementById('requestTitle').value;
+    const description = document.getElementById('requestDescription').value;
+    const options = {};
+    
+    document.querySelectorAll('.option-input input').forEach((input, index) => {
+        if (input.value.trim()) {
+            options[`option${index + 1}`] = {
+                text: input.value.trim(),
+                votes: 0
+            };
+        }
+    });
+
+    if (Object.keys(options).length < 2) {
+        alert('請至少添加兩個選項');
+        return;
+    }
+
+    try {
+        const userIP = await getUserIP();
+        if (!userIP) throw new Error('無法獲取IP地址');
+
+        await db.collection('vote_requests').add({
+            title,
+            description,
+            options,
+            requestedBy: userIP,
+            status: 'pending',
+            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+        });
+
+        alert('申請已提交，等待管理員審核');
+        closeVoteRequestModal();
+    } catch (error) {
+        console.error("Error submitting vote request:", error);
+        alert('提交失敗，請稍後再試');
+    }
+}
+
+// 將函數添加到全局作用域
+window.openVoteRequestModal = openVoteRequestModal;
+window.closeVoteRequestModal = closeVoteRequestModal;
+window.addRequestOption = addRequestOption;
+window.submitVoteRequest = submitVoteRequest; 
